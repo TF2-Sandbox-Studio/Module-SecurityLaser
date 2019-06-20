@@ -3,7 +3,7 @@
 #define DEBUG
 
 #define PLUGIN_AUTHOR "BattlefieldDuck"
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.1"
 
 #include <sourcemod>
 #include <sdktools>
@@ -82,7 +82,7 @@ public void OnMapStart()
 		
 		if (StrEqual(strModel, MODEL_POINTER))
 		{
-			CreateTimer(0.0, Timer_SecurityLaser, EntIndexToEntRef(index));
+			CreateTimer(cvfRefreshRate.FloatValue, Timer_SecurityLaser, EntIndexToEntRef(index), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
@@ -104,7 +104,7 @@ public void OnLaserPointerSpawn(int entity)
 		
 		if (StrEqual(strModel, MODEL_POINTER))
 		{
-			CreateTimer(0.0, Timer_SecurityLaser, EntIndexToEntRef(entity));
+			CreateTimer(cvfRefreshRate.FloatValue, Timer_SecurityLaser, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
@@ -126,7 +126,7 @@ public Action Timer_SecurityLaser(Handle timer, int pointerref)
 	int pointer = EntRefToEntIndex(pointerref);
 	if (pointer == INVALID_ENT_REFERENCE)
 	{
-		return Plugin_Continue;
+		return Plugin_Stop;
 	}
 	
 	float fpointerpos[3], fpointerang[3];
@@ -142,10 +142,8 @@ public Action Timer_SecurityLaser(Handle timer, int pointerref)
 	int g_iLaserColor[4];
 	GetEntityRenderColor(pointer, g_iLaserColor[0], g_iLaserColor[1], g_iLaserColor[2], g_iLaserColor[3]);
 
-	TE_SetupBeamPoints(fpointerpos, GetPointAimPosition(fpointerpos, fpointerang, 999999.9, pointer), g_iModelIndex[iSkin], g_iHaloIndex[iSkin], 0, 0, cvfRefreshRate.FloatValue*2, fSize, fSize, 0, 0.0, g_iLaserColor, 0);
+	TE_SetupBeamPoints(fpointerpos, GetPointAimPosition(fpointerpos, fpointerang, 999999.9, pointer), g_iModelIndex[iSkin], g_iHaloIndex[iSkin], 0, 0, cvfRefreshRate.FloatValue*2.0, fSize, fSize, 0, 0.0, g_iLaserColor, 0);
 	TE_SendToAll();
-	
-	CreateTimer(cvfRefreshRate.FloatValue, Timer_SecurityLaser, pointerref);
 	
 	return Plugin_Continue;
 }
