@@ -3,7 +3,7 @@
 #define DEBUG
 
 #define PLUGIN_AUTHOR "BattlefieldDuck"
-#define PLUGIN_VERSION "1.1"
+#define PLUGIN_VERSION "1.2"
 
 #include <sourcemod>
 #include <sdktools>
@@ -28,37 +28,30 @@ ConVar cvfRefreshRate;
 
 char g_strLaserModel[][] =
 {
-	"materials/sprites/physbeam.vmt",
-	"materials/sprites/healbeam.vmt",
-	"materials/sprites/plasmabeam.vmt",
-	"materials/sprites/bluelaser1.vmt",
-	"materials/sprites/crystal_beam1.vmt",
-	"materials/sprites/laser.vmt",
-	"materials/sprites/laserbeam.vmt",
-	"materials/sprites/laserdot.vmt",
-	"materials/sprites/lgtning.vmt",
-	"materials/sprites/tp_beam001.vmt"
-};
-
-char g_strHaloModel[][] =
-{
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt",
-	"materials/sprites/halo01.vmt"
+	"materials/sprites/laser.vmt", //0
+	"materials/sprites/healbeam.vmt", //1
+	"materials/sprites/plasmabeam.vmt", //2
+	"materials/sprites/bluelaser1.vmt", //3
+	"materials/sprites/crystal_beam1.vmt", //4
+	"materials/sprites/physbeam.vmt", //5
+	"materials/sprites/laserbeam.vmt", //6
+	"materials/sprites/laserdot.vmt", //7
+	"materials/sprites/lgtning.vmt", //8
+	"materials/sprites/steam1.vmt", //9
+	"materials/sprites/blueglow1.vmt", //10
+	"materials/sprites/crystal_beam1.vmt", //11
+	"materials/effects/fire_cloud1.vmt", //12
+	"sprites/blueglow2.vmt", //13
+	"materials/sprites/halo01.vmt", //14
+	"materials/sprites/sprite_fire01.vmt" //15
 };
 
 int g_iModelIndex[sizeof(g_strLaserModel)];
-int g_iHaloIndex[sizeof(g_strHaloModel)];
 
 public void OnPluginStart()
 {
+	CreateConVar("sm_tf2sb_securitylaser_version", PLUGIN_VERSION, "", FCVAR_SPONLY|FCVAR_NOTIFY);
+	
 	RegAdminCmd("sm_laser", Command_SpawnSecurityLaser, 0, "Spawn Security Laser");
 	
 	cvfRefreshRate = CreateConVar("sm_tf2sb_laser_refreshrate", "0.25", "Security Laser refresh rate", 0, true, 0.1, true, 1.5);
@@ -71,7 +64,6 @@ public void OnMapStart()
 	for (int i = 0; i < sizeof(g_strLaserModel); i++)
 	{
 		g_iModelIndex[i] = PrecacheModel(g_strLaserModel[i]);
-		g_iHaloIndex[i] = PrecacheModel(g_strHaloModel[i]);
 	}
 
 	int index = -1;
@@ -141,8 +133,8 @@ public Action Timer_SecurityLaser(Handle timer, int pointerref)
 	
 	int g_iLaserColor[4];
 	GetEntityRenderColor(pointer, g_iLaserColor[0], g_iLaserColor[1], g_iLaserColor[2], g_iLaserColor[3]);
-
-	TE_SetupBeamPoints(fpointerpos, GetPointAimPosition(fpointerpos, fpointerang, 999999.9, pointer), g_iModelIndex[iSkin], g_iHaloIndex[iSkin], 0, 0, cvfRefreshRate.FloatValue*2.0, fSize, fSize, 0, 0.0, g_iLaserColor, 0);
+	
+	TE_SetupBeamPoints(GetPointAimPosition(fpointerpos, fpointerang, 999999.9, pointer), fpointerpos, g_iModelIndex[iSkin], 0, 0, 100, cvfRefreshRate.FloatValue*2.0, fSize, fSize, 0, 0.0, g_iLaserColor, 100);
 	TE_SendToAll();
 	
 	return Plugin_Continue;
